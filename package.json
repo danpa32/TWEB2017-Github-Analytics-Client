@@ -1,0 +1,41 @@
+{
+  "title": "Analysis issues",
+  "name": "vendor",
+  "version": "0.0.1",
+  "keywords": [
+        "css",
+        "sass",
+        "html",
+        "responsive",
+        "theme",
+        "template"
+    ],
+    "homepage": "https://startbootstrap.com/template-overviews/one-page-wonder",
+    "bugs": {
+        "url": "https://github.com/BlackrockDigital/startbootstrap-one-page-wonder/issues",
+        "email": "feedback@startbootstrap.com"
+    },
+    "license": "MIT",
+    "author": "Start Bootstrap",
+    "contributors": [
+        "David Miller (http://davidmiller.io/)"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/BlackrockDigital/startbootstrap-one-page-wonder.git"
+    },
+    "dependencies": {
+        "bootstrap": "^4.0.0-alpha.6",
+        "jquery": "^3.2.1",
+        "popper.js": "^1.11.1"
+    },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "eslint": "^4.7.1",
+    "eslint-config-airbnb-base": "^12.0.0",
+    "eslint-plugin-import": "^2.7.0",
+    "mocha": "^3.5.3",
+    "browser-sync": "2.18.13",
+    "gulp": "^3.9.1"
+  }
+}
