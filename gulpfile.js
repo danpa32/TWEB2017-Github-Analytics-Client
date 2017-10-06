@@ -1,36 +1,13 @@
-var gulp = require('gulp');
-var browserSync = require('browser-sync').create();
-var pkg = require('./package.json');
+const gulp = require('gulp');
+const browserSync = require('browser-sync').create();
+const pkg = require('./package.json');
+const del = require('del');
+const runSequence = require('run-sequence');
 
-// Copy vendor files from /node_modules into /vendor
-// NOTE: requires `npm install` before running!
-gulp.task('copy', function() {
-  gulp.src([
-      'node_modules/bootstrap/dist/**/*',
-      '!**/npm.js',
-      '!**/bootstrap-theme.*',
-      '!**/*.map'
-    ])
-    .pipe(gulp.dest('vendor/bootstrap'))
 
-  gulp.src(['node_modules/jquery/dist/jquery.js', 'node_modules/jquery/dist/jquery.min.js'])
-    .pipe(gulp.dest('vendor/jquery'))
+const plugins = require('gulp-load-plugins')();
 
-  gulp.src(['node_modules/popper.js/dist/umd/popper.js', 'node_modules/popper.js/dist/umd/popper.min.js'])
-    .pipe(gulp.dest('vendor/popper'))
-})
-
-// Default task
-gulp.task('default', ['copy']);
-
-// Configure the browserSync task
-gulp.task('browserSync', function() {
-  browserSync.init({
-    server: {
-      baseDir: 'src'
-    },
-  })
-})
+let dev = true;
 
 // Dev task with browserSync
 gulp.task('dev', ['browserSync'], function() {
@@ -38,4 +15,63 @@ gulp.task('dev', ['browserSync'], function() {
   gulp.watch('src/**/*.css', browserSync.reload);
   gulp.watch('src/*.html', browserSync.reload);
   gulp.watch('src/**/*.js', browserSync.reload);
+});
+
+const reload = browserSync.reload;
+
+gulp.task('styles', () => {
+  return gulp.src('src/css/**/*.css')
+    .pipe(gulp.dest('.tmp/css'))
+    .pipe(reload({stream: true}));
+});
+
+gulp.task('scripts', () => {
+  return gulp.src('src/js/**/*.js')
+    .pipe(plugins.plumber())
+    .pipe(plugins.if(dev, plugins.sourcemaps.init()))
+    .pipe(plugins.babel())
+    .pipe(plugins.if(dev, plugins.sourcemaps.write('.')))
+    .pipe(gulp.dest('.tmp/js'))
+    .pipe(reload({stream: true}));
+});
+
+gulp.task('vendors', () => {
+  return gulp.src('src/vendor/**/*')
+    .pipe(gulp.dest('.tmp/vendor'))
+    .pipe(reload({stream: true}));
+});
+
+gulp.task('data', () => {
+  return gulp.src('src/**/*.json')
+    .pipe(gulp.dest('.tmp'))
+    .pipe(reload({stream: true}));
+});
+
+gulp.task('html', ['styles', 'scripts'], () => {
+  return gulp.src('src/**/*.html')
+    .pipe(gulp.dest('.tmp'));
+});
+
+gulp.task('clean', del.bind(null, ['.tmp']));
+
+gulp.task('serve', () => {
+  runSequence(['clean'], ['styles', 'scripts', 'vendors', 'data', 'html'], () => {
+    browserSync.init({
+      notify: false,
+      port: 8080,
+      server: {
+        baseDir: ['.tmp', 'src']
+      }
+    });
+
+    gulp.watch([
+      'src/**/*.html'
+    ]).on('change', reload);
+
+    // Reloads the browser whenever HTML or CSS files change
+    gulp.watch('src/css/**/*.css', ['styles']);
+    gulp.watch('src/js/**/*.js', ['scripts']);
+    gulp.watch('src/**/*.json', ['data']);
+    gulp.watch('src/vendor/**/*', ['vendor']);
+  });
 });
