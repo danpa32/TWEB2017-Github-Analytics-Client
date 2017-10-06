@@ -40,9 +40,14 @@ var arc = d3.svg.arc()
 
 // Use d3.text and d3.csv.parseRows so that we do not need to have a header
 // row, and can receive the csv as an array of arrays.
-d3.text("visit-sequence.csv", function(text) {
+/*d3.text("visit-sequence.csv", function(text) {
   var csv = d3.csv.parseRows(text);
   var json = buildHierarchy(csv);
+  createVisualization(json);
+});*/
+
+d3.json("repo.json", function(data) {
+  var json = buildHierarchy(data);
   createVisualization(json);
 });
 
@@ -264,7 +269,7 @@ function toggleLegend() {
 // for a partition layout. The first column is a sequence of step names, from
 // root to leaf, separated by hyphens. The second column is a count of how 
 // often that sequence occurred.
-function buildHierarchy(csv) {
+/*function buildHierarchy(csv) {
   var root = {"name": "root", "children": []};
   for (var i = 0; i < csv.length; i++) {
     var sequence = csv[i][0];
@@ -300,6 +305,33 @@ function buildHierarchy(csv) {
  	children.push(childNode);
       }
     }
+  }
+  return root;
+};*/
+
+function buildHierarchy(data) {
+  let root = {"name": "root", "children": []};
+  let users = {};
+  for (let i = 0; i < data.issues.length; i++) {
+    let issue = data.issues[i];
+    if (users[issue.user.login] === undefined) {
+      users[issue.user.login] = {};
+    }
+
+    if (users[issue.user.login][issue.state] === undefined) {
+      users[issue.user.login][issue.state] = [];
+    }
+    users[issue.user.login][issue.state].push(issue);
+
+  }
+
+  for (let [login, states] of users) {
+    let currUserNode = {name: login, children: []};
+    for (let [state, issues] of states) {
+      let currStateNode = {name: state, size: issues.lenght};
+      currUserNode.children.push(currStateNode);
+    }
+    root.children.push(currUserNode);
   }
   return root;
 };
