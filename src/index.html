@@ -54,9 +54,10 @@
       <div class="overlay">
         <div class="container">
           <h1 class="display-4 text-white">The repository</h1>
-          <h2 class="display-1 text-primary">danpa32/Teaching</h2>
+          <h2 class="display-1 text-primary" id="header-repo-name"></h2>
           <h2 class="display-4 text-white">has</h2>
-          <h2 class="display-1 text-primary">323 issues</h2>
+          <h2 class="display-1 text-primary" id="header-nb-issues"></h2>
+          <h2 class="display-4 text-white">issues listed.</h2>
         </div>
       </div>
     </header>
@@ -66,18 +67,13 @@
         <div class="row align-items-center">
           <div class="mx-auto">
             <div class="p-5">
-            <div id="sidebar">
-                <input type="checkbox" id="togglelegend"> Legend<br/>
-                <div id="legend" style="visibility: hidden;"></div>
-            </div>
               <div id="sequence"></div>
               <div id="chart">
                 <div id="explanation" style="visibility: hidden;">
-                  <span id="percentage"></span><br/>of visits begin with this sequence of pages
+                  <span id="percentage"></span><br/>
                 </div>
               </div>
             </div>
-            <script type="text/javascript" src="js/sequence.js"></script>
             </div>
           </div>
         </div>
@@ -87,7 +83,7 @@
     <!-- Footer -->
     <footer class="py-5 bg-dark">
       <div class="container">
-        <p class="m-0 text-center text-white">Copyright &copy; Your Website 2017</p>
+        <p class="m-0 text-center text-white">Copyright &copy; Git Analysis Issues 2017</p>
       </div>
       <!-- /.container -->
     </footer>
@@ -96,6 +92,7 @@
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/popper/popper.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/sequence.js"></script>
 
   </body>
 
