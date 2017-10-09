@@ -104,17 +104,29 @@ function createVisualization(json) {
 // Fade all but the current sequence, and show it in the breadcrumb trail.
 function mouseover(d) {
   const percentage = (100 * d.value / totalSize).toPrecision(3);
-  let percentageString = `${percentage}%`;
-  let percentageOCIssues = `${percentage}% of it have been ${d.name}`;
+  let percentageString = `${d.value}`;
+  const textForClosed = `${d.value} of them have been ${d.name}`;
+  const textForOpen = `${d.value} of them are still ${d.name}ed`;
 
-  const percentageStr = percentageString.concat(` of the issues have been created by ${d.name}.`);
+  const percentageStr = percentageString.concat(` issues have been created by ${d.name}.`);
 
   if (percentage < 0.1) {
     percentageString = '< 0.1%';
   }
 
-  d3.select('#percentage')
-    .text(percentageStr);
+  switch (d.name) {
+    case 'open':
+      d3.select('#percentage')
+        .text(textForOpen);
+      break;
+    case 'closed':
+      d3.select('#percentage')
+        .text(textForClosed);
+      break;
+    default:
+      d3.select('#percentage')
+        .text(percentageStr);
+  }
 
   d3.select('#explanation')
     .style('visibility', '');
