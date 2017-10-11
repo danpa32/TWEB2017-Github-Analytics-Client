@@ -49,7 +49,8 @@ gulp.task('data', () => {
 
 gulp.task('html', ['styles', 'scripts'], () => {
   return gulp.src('src/**/*.html')
-    .pipe(gulp.dest('.tmp'));
+    .pipe(gulp.dest('.tmp'))
+    .pipe(reload({stream: true}));
 });
 
 gulp.task('clean', del.bind(null, ['.tmp']));
@@ -64,15 +65,12 @@ gulp.task('serve', () => {
       }
     });
 
-    gulp.watch([
-      'src/**/*.html'
-    ]).on('change', reload);
-
     // Reloads the browser whenever HTML or CSS files change
+    gulp.watch('src/**/*.html', ['html']);
     gulp.watch('src/css/**/*.css', ['styles']);
     gulp.watch('src/js/**/*.js', ['scripts']);
     gulp.watch('src/**/*.json', ['data']);
-    gulp.watch('src/vendor/**/*', ['vendor']);
+    gulp.watch('src/vendor/**/*', ['vendors']);
   });
 });
 

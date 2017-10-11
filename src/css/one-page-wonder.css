@@ -36,7 +36,7 @@ header.masthead > .overlay {
 
 #explanation {
   position: absolute;
-  top: 230px;
+  top: 210px;
   left: 305px;
   width: 140px;
   text-align: center;
@@ -86,4 +86,8 @@ header.masthead > .overlay {
 
 #info-text-info-repo{
     font-size: 1.5em;
+}
+
+#info-text-nbIssues{
+    font-size: 2.5em;
 }

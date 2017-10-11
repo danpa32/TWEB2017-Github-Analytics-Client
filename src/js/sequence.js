@@ -56,6 +56,9 @@ d3.json('repo.json', (data) => {
   d3.select('#header-nb-issues')
     .text(data.issues.length);
 
+  d3.select('#info-crawl')
+    .text(new Date(data.date_crawl).toISOString().slice(0, 10));
+
   let json = buildHierarchy(data);
   createVisualization(json);
 });
@@ -113,7 +116,8 @@ function mouseover(d) {
       d3.select('#percentage')
         .text(d.value);
       d3.select('#info-text-nbIssues')
-        .text(textForOpen);
+        .text(textForOpen)
+        .style('font-size', '1em');
       d3.select('#info-text-info-repo')
         .text(`${d.name}ed`);
       break;
@@ -121,7 +125,8 @@ function mouseover(d) {
       d3.select('#percentage')
         .text(d.value);
       d3.select('#info-text-nbIssues')
-        .text(textForClosed);
+        .text(textForClosed)
+        .style('font-size', '1em');
       d3.select('#info-text-info-repo')
         .text(d.name);
       break;
@@ -129,13 +134,14 @@ function mouseover(d) {
       d3.select('#percentage')
         .text(percentageString);
       d3.select('#info-text-nbIssues')
-        .text(percentageStr);
+        .text(percentageStr)
+        .style('font-size', '1em');
       d3.select('#info-text-info-repo')
         .text(`${d.name}.`);
   }
 
   d3.select('#explanation')
-    .style('visibility', '');
+    .style('top', '240px');
 
   const sequenceArray = getAncestors(d);
   updateBreadcrumbs(sequenceArray, percentageString);
@@ -168,8 +174,18 @@ function mouseleave(d) {
       d3.select(this).on('mouseover', mouseover);
     });
 
+  d3.select('#percentage')
+    .text('');
+
+  d3.select('#info-text-nbIssues')
+    .text('Touch me !')
+    .style('font-size', '2.5em');
+
+  d3.select('#info-text-info-repo')
+    .text('');
+
   d3.select('#explanation')
-    .style('visibility', 'hidden');
+    .style('top', '210px');
 }
 
 // Given a node in a partition layout, return an array of all of its ancestor
@@ -322,11 +338,11 @@ function buildHierarchy(data) {
   function getSize(d) {
     let size = 0;
 
-    if(d.children !== undefined) {
+    if (d.children !== undefined) {
       size = d.children.reduce((total, e) => total + getSize(e), 0);
     }
 
-    if(d.size !== undefined) {
+    if (d.size !== undefined) {
       size += d.size;
     }
     return size;
