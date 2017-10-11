@@ -3,7 +3,7 @@ const browserSync = require('browser-sync').create();
 const pkg = require('./package.json');
 const del = require('del');
 const runSequence = require('run-sequence');
-
+const ghPages = require('gulp-gh-pages');
 
 const plugins = require('gulp-load-plugins')();
 
@@ -74,4 +74,13 @@ gulp.task('serve', () => {
     gulp.watch('src/**/*.json', ['data']);
     gulp.watch('src/vendor/**/*', ['vendor']);
   });
+});
+
+gulp.task('publish', () => {
+  return gulp.src('.tmp/**/*')
+    .pipe(ghPages());
+});
+
+gulp.task('deploy', () => {
+  runSequence(['clean'], ['styles', 'scripts', 'vendors', 'data', 'html'], ['publish']);
 });
