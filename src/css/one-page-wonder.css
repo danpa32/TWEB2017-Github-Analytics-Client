@@ -15,7 +15,7 @@ body {
 }
 
 header.masthead {
-    background: url('https://unsplash.it/1900/1080?image=304') no-repeat center center scroll;
+    background: url('https://phandroid.s3.amazonaws.com/wp-content/uploads/2014/05/rainbow-nebula.jpg') no-repeat center center scroll;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     background-size: cover;
@@ -36,7 +36,7 @@ header.masthead > .overlay {
 
 #explanation {
   position: absolute;
-  top: 260px;
+  top: 230px;
   left: 305px;
   width: 140px;
   text-align: center;
@@ -46,4 +46,44 @@ header.masthead > .overlay {
 
 #chart {
     position: relative;
+}
+
+#custom-search-input{
+    padding: 3px;
+    border: solid 1px #E4E4E4;
+    border-radius: 6px;
+    background-color: #fff;
+}
+
+#custom-search-input input{
+    border: 0;
+    box-shadow: none;
+}
+
+#custom-search-input button{
+    margin: 2px 0 0 0;
+    background: none;
+    box-shadow: none;
+    border: 0;
+    color: #666666;
+    padding: 0 8px 0 10px;
+    border-left: solid 1px #ccc;
+}
+
+#custom-search-input button:hover{
+    border: 0;
+    box-shadow: none;
+    border-left: solid 1px #ccc;
+}
+
+#custom-search-input .glyphicon-search{
+    font-size: 23px;
+}
+
+#percentage{
+    font-size: 1.5em;
+}
+
+#info-text-info-repo{
+    font-size: 1.5em;
 }

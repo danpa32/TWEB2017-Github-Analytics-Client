@@ -12,18 +12,14 @@ const b = {
 
 // Mapping of step names to colors.
 const colors = {
-  open: '#5687d1',
-  closed: '#7b615c',
-  search: '#de783b',
-  account: '#6ab975',
-  other: '#a173d1',
-  end: '#bbbbbb',
+  open: '#32e875',
+  closed: '#c06c7f',
 };
 /* const colors = {
   open: '#5687d1',
   closed: '#7b615c',
 };*/
-const defaultColor = '#6ab975';
+const defaultColors = ['#6ca0f1', '#357ded'];
 
 // Total size of all segments; we set this later, after loading the data.
 let totalSize = 0;
@@ -33,17 +29,17 @@ const vis = d3.select('#chart').append('svg:svg')
   .attr('height', height)
   .append('svg:g')
   .attr('id', 'container')
-  .attr('transform', `translate(${  width / 2  },${  height / 2  })`);
+  .attr('transform', `translate(${width / 2},${height / 2})`);
 
 const partition = d3.layout.partition()
   .size([2 * Math.PI, radius * radius])
-  .value((d) => d.size);
+  .value(d => d.size);
 
 const arc = d3.svg.arc()
-  .startAngle((d) => d.x)
-  .endAngle((d) => d.x + d.dx)
-  .innerRadius((d) => Math.sqrt(d.y))
-  .outerRadius((d) => Math.sqrt(d.y + d.dy));
+  .startAngle(d => d.x)
+  .endAngle(d => d.x + d.dx)
+  .innerRadius(d => Math.sqrt(d.y))
+  .outerRadius(d => Math.sqrt(d.y + d.dy));
 
 // Use d3.text and d3.csv.parseRows so that we do not need to have a header
 // row, and can receive the csv as an array of arrays.
@@ -55,7 +51,7 @@ const arc = d3.svg.arc()
 
 d3.json('repo.json', (data) => {
   d3.select('#header-repo-name')
-    .text(data.repo);
+    .text(`${data.owner}/${data.repo}`);
 
   d3.select('#header-nb-issues')
     .text(data.issues.length);
@@ -79,9 +75,7 @@ function createVisualization(json) {
 
   // For efficiency, filter nodes to keep only those large enough to see.
   const nodes = partition.nodes(json)
-    .filter((d) => 
-       (d.dx > 0.005) // 0.005 radians = 0.29 degrees
-    );
+    .filter(d => (d.dx > 0.005)); // 0.005 radians = 0.29 degrees
 
   const path = vis.data([json]).selectAll('path')
     .data(nodes)
@@ -90,7 +84,7 @@ function createVisualization(json) {
     .attr('display', (d) => d.depth ? null : "none")
     .attr('d', arc)
     .attr('fill-rule', 'evenodd')
-    .style('fill', (d) => colors[d.name] || defaultColor)
+    .style('fill', d => colors[d.name] || defaultColors[d.rank % defaultColors.length])
     .style('opacity', 1)
     .on('mouseover', mouseover);
 
@@ -105,10 +99,10 @@ function createVisualization(json) {
 function mouseover(d) {
   const percentage = (100 * d.value / totalSize).toPrecision(3);
   let percentageString = `${d.value}`;
-  const textForClosed = `${d.value} of them have been ${d.name}`;
-  const textForOpen = `${d.value} of them are still ${d.name}ed`;
+  const textForClosed = ' of them have been ';
+  const textForOpen = ' of them are still ';
 
-  const percentageStr = percentageString.concat(` issues have been created by ${d.name}.`);
+  const percentageStr = ' issues have been created by ';
 
   if (percentage < 0.1) {
     percentageString = '< 0.1%';
@@ -117,15 +111,27 @@ function mouseover(d) {
   switch (d.name) {
     case 'open':
       d3.select('#percentage')
+        .text(d.value);
+      d3.select('#info-text-nbIssues')
         .text(textForOpen);
+      d3.select('#info-text-info-repo')
+        .text(`${d.name}ed`);
       break;
     case 'closed':
       d3.select('#percentage')
+        .text(d.value);
+      d3.select('#info-text-nbIssues')
         .text(textForClosed);
+      d3.select('#info-text-info-repo')
+        .text(d.name);
       break;
     default:
       d3.select('#percentage')
+        .text(percentageString);
+      d3.select('#info-text-nbIssues')
         .text(percentageStr);
+      d3.select('#info-text-info-repo')
+        .text(`${d.name}.`);
   }
 
   d3.select('#explanation')
@@ -194,12 +200,12 @@ function initializeBreadcrumbTrail() {
 function breadcrumbPoints(d, i) {
   const points = [];
   points.push('0,0');
-  points.push(`${b.w },0`);
+  points.push(`${b.w},0`);
   points.push(`${b.w + b.t},${b.h / 2}`);
-  points.push(`${b.w },${b.h}`);
-  points.push(`0,${  b.h}`);
+  points.push(`${b.w},${b.h}`);
+  points.push(`0,${b.h}`);
   if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
-    points.push(`${b.t},${ b.h / 2}`);
+    points.push(`${b.t},${b.h / 2}`);
   }
   return points.join(' ');
 }
@@ -216,7 +222,7 @@ function updateBreadcrumbs(nodeArray, percentageString) {
 
   entering.append('svg:polygon')
     .attr('points', breadcrumbPoints)
-    .style('fill', (d) => colors[d.name] || defaultColor);
+    .style('fill', d => colors[d.name] || defaultColors[d.rank % defaultColors.length]);
 
   entering.append('svg:text')
     .attr('x', (b.w + b.t) / 2)
@@ -312,5 +318,23 @@ function buildHierarchy(data) {
       root.children.push(currUserNode);
     }
   });
+
+  function getSize(d) {
+    let size = 0;
+
+    if(d.children !== undefined) {
+      size = d.children.reduce((total, e) => total + getSize(e), 0);
+    }
+
+    if(d.size !== undefined) {
+      size += d.size;
+    }
+    return size;
+  }
+
+  root.children.sort((d1, d2) => getSize(d2) - getSize(d1));
+  for (let i = 0; i < root.children.length; i += 1) {
+    root.children[i].rank = i;
+  }
   return root;
 }
