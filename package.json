@@ -1,0 +1,52 @@
+{
+    "title": "Analysis issues",
+    "name": "vendor",
+    "version": "0.0.1",
+    "keywords": [
+        "css",
+        "sass",
+        "html",
+        "responsive",
+        "theme",
+        "template"
+    ],
+    "homepage": "https://startbootstrap.com/template-overviews/one-page-wonder",
+    "bugs": {
+        "url": "https://github.com/BlackrockDigital/startbootstrap-one-page-wonder/issues",
+        "email": "feedback@startbootstrap.com"
+    },
+    "license": "MIT",
+    "author": "Start Bootstrap",
+    "contributors": [
+        "David Miller (http://davidmiller.io/)"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/BlackrockDigital/startbootstrap-one-page-wonder.git"
+    },
+    "dependencies": {
+        "bootstrap": "^4.0.0-alpha.6",
+        "jquery": "^3.2.1",
+        "popper.js": "^1.11.1"
+    },
+    "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-preset-es2015": "^6.24.1",
+        "babel-register": "^6.26.0",
+        "browser-sync": "^2.18.13",
+        "chai": "^4.1.2",
+        "del": "^3.0.0",
+        "eslint": "^4.7.1",
+        "eslint-config-airbnb-base": "^12.0.0",
+        "eslint-plugin-import": "^2.7.0",
+        "gulp": "^3.9.1",
+        "gulp-babel": "^7.0.0",
+        "gulp-eslint": "^4.0.0",
+        "gulp-if": "^2.0.2",
+        "gulp-load-plugins": "^1.5.0",
+        "gulp-plumber": "^1.1.0",
+        "gulp-sourcemaps": "^2.6.1",
+        "mocha": "^3.5.3",
+        "run-sequence": "^2.2.0"
+    }
+}
