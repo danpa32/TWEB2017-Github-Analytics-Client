@@ -1,3 +1,4 @@
+const d3 = window.d3;
 const quorom = 10;
 
 // Dimensions of sunburst.
@@ -43,6 +44,8 @@ d3.json('repo.json', data => {
 
   d3.select('#header-nb-issues').text(data.issues.length);
 
+  d3.select('#info-crawl').text(new Date(data.date_crawl).toISOString().slice(0, 10));
+
   let json = buildHierarchy(data);
   createVisualization(json);
 });
@@ -86,21 +89,21 @@ function mouseover(d) {
   switch (d.name) {
     case 'open':
       d3.select('#percentage').text(d.value);
-      d3.select('#info-text-nbIssues').text(textForOpen);
+      d3.select('#info-text-nbIssues').text(textForOpen).style('font-size', '1em');
       d3.select('#info-text-info-repo').text(`${d.name}ed`);
       break;
     case 'closed':
       d3.select('#percentage').text(d.value);
-      d3.select('#info-text-nbIssues').text(textForClosed);
+      d3.select('#info-text-nbIssues').text(textForClosed).style('font-size', '1em');
       d3.select('#info-text-info-repo').text(d.name);
       break;
     default:
       d3.select('#percentage').text(percentageString);
-      d3.select('#info-text-nbIssues').text(percentageStr);
+      d3.select('#info-text-nbIssues').text(percentageStr).style('font-size', '1em');
       d3.select('#info-text-info-repo').text(`${d.name}.`);
   }
 
-  d3.select('#explanation').style('visibility', '');
+  d3.select('#explanation').style('top', '240px');
 
   const sequenceArray = getAncestors(d);
   updateBreadcrumbs(sequenceArray, percentageString);
@@ -125,7 +128,13 @@ function mouseleave(d) {
     d3.select(this).on('mouseover', mouseover);
   });
 
-  d3.select('#explanation').style('visibility', 'hidden');
+  d3.select('#percentage').text('');
+
+  d3.select('#info-text-nbIssues').text('Touch me !').style('font-size', '2.5em');
+
+  d3.select('#info-text-info-repo').text('');
+
+  d3.select('#explanation').style('top', '210px');
 }
 
 // Given a node in a partition layout, return an array of all of its ancestor
