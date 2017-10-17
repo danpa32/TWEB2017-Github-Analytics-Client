@@ -1,4 +1,7 @@
-const d3 = window.d3;
+/**
+ * Modification of the source code found here : https://bl.ocks.org/kerryrodden/766f8f6d31f645c39f488a0befa1e3c8
+ */
+const { d3 } = window;
 const quorom = 10;
 
 // Dimensions of sunburst.
@@ -16,126 +19,14 @@ const colors = {
   open: '#32e875',
   closed: '#c06c7f'
 };
-/* const colors = {
-  open: '#5687d1',
-  closed: '#7b615c',
-};*/
-const defaultColors = ['#6ca0f1', '#357ded'];
 
-// Total size of all segments; we set this later, after loading the data.
-let totalSize = 0;
+const defaultColors = ['#6ca0f1', '#357ded'];
 
 const vis = d3.select('#chart').append('svg:svg').attr('width', width).attr('height', height).append('svg:g').attr('id', 'container').attr('transform', `translate(${width / 2},${height / 2})`);
 
 const partition = d3.layout.partition().size([2 * Math.PI, radius * radius]).value(d => d.size);
 
 const arc = d3.svg.arc().startAngle(d => d.x).endAngle(d => d.x + d.dx).innerRadius(d => Math.sqrt(d.y)).outerRadius(d => Math.sqrt(d.y + d.dy));
-
-// Use d3.text and d3.csv.parseRows so that we do not need to have a header
-// row, and can receive the csv as an array of arrays.
-/* d3.text("visit-sequence.csv", function(text) {
-  var csv = d3.csv.parseRows(text);
-  var json = buildHierarchy(csv);
-  createVisualization(json);
-}); */
-
-d3.json('repo.json', data => {
-  d3.select('#header-repo-name').text(`${data.owner}/${data.repo}`);
-
-  d3.select('#header-nb-issues').text(data.issues.length);
-
-  d3.select('#info-crawl').text(new Date(data.date_crawl).toISOString().slice(0, 10));
-
-  let json = buildHierarchy(data);
-  createVisualization(json);
-});
-
-// Main function to draw and set up the visualization, once we have the data.
-function createVisualization(json) {
-  // Basic setup of page elements.
-  initializeBreadcrumbTrail();
-  drawLegend();
-  d3.select('#togglelegend').on('click', toggleLegend);
-
-  // Bounding circle underneath the sunburst, to make it easier to detect
-  // when the mouse leaves the parent g.
-  vis.append('svg:circle').attr('r', radius).style('opacity', 0);
-
-  // For efficiency, filter nodes to keep only those large enough to see.
-  const nodes = partition.nodes(json).filter(d => d.dx > 0.005); // 0.005 radians = 0.29 degrees
-
-  const path = vis.data([json]).selectAll('path').data(nodes).enter().append('svg:path').attr('display', d => d.depth ? null : "none").attr('d', arc).attr('fill-rule', 'evenodd').style('fill', d => colors[d.name] || defaultColors[d.rank % defaultColors.length]).style('opacity', 1).on('mouseover', mouseover);
-
-  // Add the mouseleave handler to the bounding circle.
-  d3.select('#container').on('mouseleave', mouseleave);
-
-  // Get total size of the tree = value of root node from partition.
-  totalSize = path.node().__data__.value;
-}
-
-// Fade all but the current sequence, and show it in the breadcrumb trail.
-function mouseover(d) {
-  const percentage = (100 * d.value / totalSize).toPrecision(3);
-  let percentageString = `${d.value}`;
-  const textForClosed = ' of them have been ';
-  const textForOpen = ' of them are still ';
-
-  const percentageStr = ' issues have been created by ';
-
-  if (percentage < 0.1) {
-    percentageString = '< 0.1%';
-  }
-
-  switch (d.name) {
-    case 'open':
-      d3.select('#percentage').text(d.value);
-      d3.select('#info-text-nbIssues').text(textForOpen).style('font-size', '1em');
-      d3.select('#info-text-info-repo').text(`${d.name}ed`);
-      break;
-    case 'closed':
-      d3.select('#percentage').text(d.value);
-      d3.select('#info-text-nbIssues').text(textForClosed).style('font-size', '1em');
-      d3.select('#info-text-info-repo').text(d.name);
-      break;
-    default:
-      d3.select('#percentage').text(percentageString);
-      d3.select('#info-text-nbIssues').text(percentageStr).style('font-size', '1em');
-      d3.select('#info-text-info-repo').text(`${d.name}.`);
-  }
-
-  d3.select('#explanation').style('top', '240px');
-
-  const sequenceArray = getAncestors(d);
-  updateBreadcrumbs(sequenceArray, percentageString);
-
-  // Fade all the segments.
-  d3.selectAll('path').style('opacity', 0.3);
-
-  // Then highlight only those that are an ancestor of the current segment.
-  vis.selectAll('path').filter(node => sequenceArray.indexOf(node) >= 0).style('opacity', 1);
-}
-
-// Restore everything to full opacity when moving off the visualization.
-function mouseleave(d) {
-  // Hide the breadcrumb trail
-  d3.select('#trail').style('visibility', 'hidden');
-
-  // Deactivate all segments during transition.
-  d3.selectAll('path').on('mouseover', null);
-
-  // Transition each segment to full opacity and then reactivate it.
-  d3.selectAll('path').transition().duration(1000).style('opacity', 1).each('end', function () {
-    d3.select(this).on('mouseover', mouseover);
-  });
-
-  d3.select('#percentage').text('');
-
-  d3.select('#info-text-nbIssues').text('Touch me !').style('font-size', '2.5em');
-
-  d3.select('#info-text-info-repo').text('');
-
-  d3.select('#explanation').style('top', '210px');
-}
 
 // Given a node in a partition layout, return an array of all of its ancestor
 // nodes, highest first, but excluding the root.
@@ -184,7 +75,7 @@ function updateBreadcrumbs(nodeArray, percentageString) {
   entering.append('svg:text').attr('x', (b.w + b.t) / 2).attr('y', b.h / 2).attr('dy', '0.35em').attr('text-anchor', 'middle').text(d => d.name);
 
   // Set position for entering and updating nodes.
-  g.attr('transform', (d, i) => "translate(" + i * (b.w + b.s) + ", 0)");
+  g.attr('transform', (d, i) => `translate(${i * (b.w + b.s)}, 0)`);
 
   // Remove exiting nodes.
   g.exit().remove();
@@ -196,6 +87,65 @@ function updateBreadcrumbs(nodeArray, percentageString) {
   d3.select('#trail').style('visibility', '');
 }
 
+// Fade all but the current sequence, and show it in the breadcrumb trail.
+function mouseover(d) {
+  const percentageString = `${d.value}`;
+  const textForClosed = ' of them have been ';
+  const textForOpen = ' of them are still ';
+
+  const percentageStr = ' issues have been created by ';
+
+  switch (d.name) {
+    case 'open':
+      d3.select('#percentage').text(d.value);
+      d3.select('#info-text-nbIssues').text(textForOpen).style('font-size', '1em');
+      d3.select('#info-text-info-repo').text(`${d.name}ed`);
+      break;
+    case 'closed':
+      d3.select('#percentage').text(d.value);
+      d3.select('#info-text-nbIssues').text(textForClosed).style('font-size', '1em');
+      d3.select('#info-text-info-repo').text(d.name);
+      break;
+    default:
+      d3.select('#percentage').text(percentageString);
+      d3.select('#info-text-nbIssues').text(percentageStr).style('font-size', '1em');
+      d3.select('#info-text-info-repo').text(`${d.name}.`);
+  }
+
+  d3.select('#explanation').style('top', '240px');
+
+  const sequenceArray = getAncestors(d);
+  updateBreadcrumbs(sequenceArray, percentageString);
+
+  // Fade all the segments.
+  d3.selectAll('path').style('opacity', 0.3);
+
+  // Then highlight only those that are an ancestor of the current segment.
+  vis.selectAll('path').filter(node => sequenceArray.indexOf(node) >= 0).style('opacity', 1);
+}
+
+// Restore everything to full opacity when moving off the visualization.
+function mouseleave() {
+  // Hide the breadcrumb trail
+  d3.select('#trail').style('visibility', 'hidden');
+
+  // Deactivate all segments during transition.
+  d3.selectAll('path').on('mouseover', null);
+
+  // Transition each segment to full opacity and then reactivate it.
+  d3.selectAll('path').transition().duration(1000).style('opacity', 1).each('end', function over() {
+    d3.select(this).on('mouseover', mouseover);
+  });
+
+  d3.select('#percentage').text('');
+
+  d3.select('#info-text-nbIssues').text('Touch me !').style('font-size', '2.5em');
+
+  d3.select('#info-text-info-repo').text('');
+
+  d3.select('#explanation').style('top', '210px');
+}
+
 function drawLegend() {
   // Dimensions of legend item: width, height, spacing, radius of rounded rect.
   const li = {
@@ -204,7 +154,7 @@ function drawLegend() {
 
   const legend = d3.select('#legend').append('svg:svg').attr('width', li.w).attr('height', d3.keys(colors).length * (li.h + li.s));
 
-  const g = legend.selectAll('g').data(d3.entries(colors)).enter().append('svg:g').attr('transform', (d, i) => "translate(0," + i * (li.h + li.s) + ")");
+  const g = legend.selectAll('g').data(d3.entries(colors)).enter().append('svg:g').attr('transform', (d, i) => `translate(0,${i * (li.h + li.s)})`);
 
   g.append('svg:rect').attr('rx', li.r).attr('ry', li.r).attr('width', li.w).attr('height', li.h).style('fill', d => d.value);
 
@@ -213,7 +163,7 @@ function drawLegend() {
 
 function toggleLegend() {
   const legend = d3.select('#legend');
-  if (legend.style('visibility') == 'hidden') {
+  if (legend.style('visibility') === 'hidden') {
     legend.style('visibility', '');
   } else {
     legend.style('visibility', 'hidden');
@@ -269,4 +219,35 @@ function buildHierarchy(data) {
   }
   return root;
 }
+
+// Main function to draw and set up the visualization, once we have the data.
+function createVisualization(json) {
+  // Basic setup of page elements.
+  initializeBreadcrumbTrail();
+  drawLegend();
+  d3.select('#togglelegend').on('click', toggleLegend);
+
+  // Bounding circle underneath the sunburst, to make it easier to detect
+  // when the mouse leaves the parent g.
+  vis.append('svg:circle').attr('r', radius).style('opacity', 0);
+
+  // For efficiency, filter nodes to keep only those large enough to see.
+  const nodes = partition.nodes(json).filter(d => d.dx > 0.005); // 0.005 radians = 0.29 degrees
+
+  vis.data([json]).selectAll('path').data(nodes).enter().append('svg:path').attr('display', d => d.depth ? null : 'none').attr('d', arc).attr('fill-rule', 'evenodd').style('fill', d => colors[d.name] || defaultColors[d.rank % defaultColors.length]).style('opacity', 1).on('mouseover', mouseover);
+
+  // Add the mouseleave handler to the bounding circle.
+  d3.select('#container').on('mouseleave', mouseleave);
+}
+
+d3.json('repo.json', data => {
+  d3.select('#header-repo-name').text(`${data.owner}/${data.repo}`);
+
+  d3.select('#header-nb-issues').text(data.issues.length);
+
+  d3.select('#info-crawl').text(new Date(data.date_crawl).toISOString().slice(0, 10));
+
+  const json = buildHierarchy(data);
+  createVisualization(json);
+});
 //# sourceMappingURL=sequence.js.map
