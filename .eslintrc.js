@@ -1,6 +1,7 @@
 module.exports = {
     "extends": "airbnb-base",
     "env" : {
-        "mocha" : true
+        "mocha" : true,
+        "browser" : true
     }
 };
