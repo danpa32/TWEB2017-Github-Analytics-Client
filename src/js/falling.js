@@ -1,8 +1,5 @@
 /*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ * Modification of the source code found here : https://codepen.io/linrock/pen/Amdhr
  */
 const NUM_CONFETTI = 50;
 const COLORS = [[85, 71, 106], [174, 61, 99], [219, 56, 83], [244, 92, 68], [248, 182, 70]];
