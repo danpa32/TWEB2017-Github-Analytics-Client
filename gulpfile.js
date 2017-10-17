@@ -17,7 +17,7 @@ gulp.task('dev', ['browserSync'], function() {
   gulp.watch('src/**/*.js', browserSync.reload);
 });
 
-const reload = browserSync.reload;
+const { reload } = browserSync;
 
 gulp.task('styles', () => gulp.src('src/css/**/*.css')
   .pipe(gulp.dest('.tmp/css'))
