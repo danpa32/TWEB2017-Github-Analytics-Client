@@ -7,7 +7,7 @@ const ghPages = require('gulp-gh-pages');
 
 const plugins = require('gulp-load-plugins')();
 
-let dev = true;
+const dev = true;
 
 // Dev task with browserSync
 gulp.task('dev', ['browserSync'], function() {
@@ -19,39 +19,29 @@ gulp.task('dev', ['browserSync'], function() {
 
 const reload = browserSync.reload;
 
-gulp.task('styles', () => {
-  return gulp.src('src/css/**/*.css')
-    .pipe(gulp.dest('.tmp/css'))
-    .pipe(reload({stream: true}));
-});
+gulp.task('styles', () => gulp.src('src/css/**/*.css')
+  .pipe(gulp.dest('.tmp/css'))
+  .pipe(reload({ stream: true })));
 
-gulp.task('scripts', () => {
-  return gulp.src('src/js/**/*.js')
-    .pipe(plugins.plumber())
-    .pipe(plugins.if(dev, plugins.sourcemaps.init()))
-    .pipe(plugins.babel())
-    .pipe(plugins.if(dev, plugins.sourcemaps.write('.')))
-    .pipe(gulp.dest('.tmp/js'))
-    .pipe(reload({stream: true}));
-});
+gulp.task('scripts', () => gulp.src('src/js/**/*.js')
+  .pipe(plugins.plumber())
+  .pipe(plugins.if(dev, plugins.sourcemaps.init()))
+  .pipe(plugins.babel())
+  .pipe(plugins.if(dev, plugins.sourcemaps.write('.')))
+  .pipe(gulp.dest('.tmp/js'))
+  .pipe(reload({ stream: true })));
 
-gulp.task('vendors', () => {
-  return gulp.src('src/vendor/**/*')
-    .pipe(gulp.dest('.tmp/vendor'))
-    .pipe(reload({stream: true}));
-});
+gulp.task('vendors', () => gulp.src('src/vendor/**/*')
+  .pipe(gulp.dest('.tmp/vendor'))
+  .pipe(reload({ stream: true })));
 
-gulp.task('data', () => {
-  return gulp.src('src/**/*.json')
-    .pipe(gulp.dest('.tmp'))
-    .pipe(reload({stream: true}));
-});
+gulp.task('data', () => gulp.src('src/**/*.json')
+  .pipe(gulp.dest('.tmp'))
+  .pipe(reload({ stream: true })));
 
-gulp.task('html', ['styles', 'scripts'], () => {
-  return gulp.src('src/**/*.html')
-    .pipe(gulp.dest('.tmp'))
-    .pipe(reload({stream: true}));
-});
+gulp.task('html', ['styles', 'scripts'], () => gulp.src('src/**/*.html')
+  .pipe(gulp.dest('.tmp'))
+  .pipe(reload({ stream: true })));
 
 gulp.task('clean', del.bind(null, ['.tmp']));
 
@@ -61,8 +51,8 @@ gulp.task('serve', () => {
       notify: false,
       port: 8080,
       server: {
-        baseDir: ['.tmp', 'src']
-      }
+        baseDir: ['.tmp', 'src'],
+      },
     });
 
     // Reloads the browser whenever HTML or CSS files change
@@ -74,10 +64,8 @@ gulp.task('serve', () => {
   });
 });
 
-gulp.task('publish', () => {
-  return gulp.src('.tmp/**/*')
-    .pipe(ghPages());
-});
+gulp.task('publish', () => gulp.src('.tmp/**/*')
+  .pipe(ghPages()));
 
 gulp.task('deploy', () => {
   runSequence(['clean'], ['styles', 'scripts', 'vendors', 'data', 'html'], ['publish']);
