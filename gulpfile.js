@@ -9,19 +9,21 @@ const plugins = require('gulp-load-plugins')();
 
 const dev = true;
 
-// Dev task with browserSync
-gulp.task('dev', ['browserSync'], function() {
-  // Reloads the browser whenever HTML or CSS files change
-  gulp.watch('src/**/*.css', browserSync.reload);
-  gulp.watch('src/*.html', browserSync.reload);
-  gulp.watch('src/**/*.js', browserSync.reload);
-});
-
-const reload = browserSync.reload;
+const { reload } = browserSync;
 
 gulp.task('styles', () => gulp.src('src/css/**/*.css')
   .pipe(gulp.dest('.tmp/css'))
   .pipe(reload({ stream: true })));
+
+function lint(files) {
+  return gulp.src(files)
+    .pipe(plugins.eslint({ fix: true }))
+    .pipe(plugins.eslint.format());
+}
+
+gulp.task('lint', () =>
+  lint('src/js/**/*.js')
+    .pipe(gulp.dest('src')));
 
 gulp.task('scripts', () => gulp.src('src/js/**/*.js')
   .pipe(plugins.plumber())
@@ -68,5 +70,5 @@ gulp.task('publish', () => gulp.src('.tmp/**/*')
   .pipe(ghPages()));
 
 gulp.task('deploy', () => {
-  runSequence(['clean'], ['styles', 'scripts', 'vendors', 'data', 'html'], ['publish']);
+  runSequence(['clean'], ['styles', 'scripts', 'vendors', 'html'], ['publish']);
 });
