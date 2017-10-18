@@ -3,6 +3,7 @@
  */
 const { d3 } = window;
 const quorom = 10;
+const possibleStates = ['open', 'closed'];
 
 // Dimensions of sunburst.
 const width = 750;
@@ -170,29 +171,33 @@ function toggleLegend() {
   }
 }
 
-function buildHierarchy(data) {
-  const root = { name: 'root', children: [] };
-  const users = {};
-  for (let i = 0; i < data.issues.length; i += 1) {
-    const issue = data.issues[i];
-    if (users[issue.user.login] === undefined) {
-      users[issue.user.login] = {};
-    }
+function getSize(d) {
+  let size = 0;
 
-    if (users[issue.user.login][issue.state] === undefined) {
-      users[issue.user.login][issue.state] = [];
-    }
-    users[issue.user.login][issue.state].push(issue);
+  if (d.children !== undefined) {
+    size = d.children.reduce((total, e) => total + getSize(e), 0);
   }
 
-  Object.entries(users).forEach(([login, states]) => {
-    let size = 0;
-    const currUserNode = { name: login, children: [] };
+  if (d.size !== undefined) {
+    size += d.size;
+  }
+  return size;
+}
 
-    Object.entries(states).forEach(([state, issues]) => {
-      size += issues.length;
-      const currStateNode = { name: state, size: issues.length };
-      currUserNode.children.push(currStateNode);
+function buildHierarchy(data) {
+  const root = { name: 'root', children: [] };
+
+  data.authors.forEach(author => {
+    let size = 0;
+    const currUserNode = { name: author.login, children: [] };
+
+    possibleStates.forEach(state => {
+      const stateNb = author[state];
+      if (stateNb > 0) {
+        size += stateNb;
+        const currStateNode = { name: state, size: stateNb };
+        currUserNode.children.push(currStateNode);
+      }
     });
 
     if (size >= quorom) {
@@ -200,19 +205,7 @@ function buildHierarchy(data) {
     }
   });
 
-  function getSize(d) {
-    let size = 0;
-
-    if (d.children !== undefined) {
-      size = d.children.reduce((total, e) => total + getSize(e), 0);
-    }
-
-    if (d.size !== undefined) {
-      size += d.size;
-    }
-    return size;
-  }
-
+  // Order by size
   root.children.sort((d1, d2) => getSize(d2) - getSize(d1));
   for (let i = 0; i < root.children.length; i += 1) {
     root.children[i].rank = i;
@@ -243,7 +236,14 @@ function createVisualization(json) {
 d3.json('repo.json', data => {
   d3.select('#header-repo-name').text(`${data.owner}/${data.repo}`);
 
-  d3.select('#header-nb-issues').text(data.issues.length);
+  const nbIssues = data.authors.reduce((total, author) => {
+    let size = 0;
+    possibleStates.forEach(state => {
+      size += author[state];
+    });
+    return total + size;
+  }, 0);
+  d3.select('#header-nb-issues').text(nbIssues);
 
   d3.select('#info-crawl').text(new Date(data.date_crawl).toISOString().slice(0, 10));
 
