@@ -19,4 +19,5 @@ This repository contains the client part of the project. It uses HTML/CSS and Ja
 2. Execute `npm install` in the terminal
 3. Execute `gulp serve` in the terminal
     a. You must have installed the gulp client with the command `npm install -g gulp-cli`
+    b. The compiled files are present in the `dist` folder.
 4. If the browser doesn't open itself, open it and go to `http://localhost:8080/`

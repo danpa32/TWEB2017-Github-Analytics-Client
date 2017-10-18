@@ -10,8 +10,10 @@ const dev = true;
 
 const { reload } = browserSync;
 
+const distDir = "dist";
+
 gulp.task('styles', () => gulp.src('src/css/**/*.css')
-  .pipe(gulp.dest('.tmp/css'))
+  .pipe(gulp.dest(`${distDir}/css`))
   .pipe(reload({ stream: true })));
 
 function lint(files) {
@@ -29,19 +31,19 @@ gulp.task('scripts', ['lint'], () => gulp.src('src/js/**/*.js')
   .pipe(plugins.if(dev, plugins.sourcemaps.init()))
   .pipe(plugins.babel())
   .pipe(plugins.if(dev, plugins.sourcemaps.write('.')))
-  .pipe(gulp.dest('.tmp/js'))
+  .pipe(gulp.dest(`${distDir}/js`))
   .pipe(reload({ stream: true })));
 
 gulp.task('vendors', () => gulp.src('src/vendor/**/*')
-  .pipe(gulp.dest('.tmp/vendor'))
+  .pipe(gulp.dest(`${distDir}/vendor`))
   .pipe(reload({ stream: true })));
 
 gulp.task('data', () => gulp.src('src/**/*.json')
-  .pipe(gulp.dest('.tmp'))
+  .pipe(gulp.dest(`${distDir}`))
   .pipe(reload({ stream: true })));
 
 gulp.task('html', ['styles', 'scripts'], () => gulp.src('src/**/*.html')
-  .pipe(gulp.dest('.tmp'))
+  .pipe(gulp.dest(`${distDir}`))
   .pipe(reload({ stream: true })));
 
 gulp.task('clean', del.bind(null, ['.tmp']));
@@ -52,7 +54,7 @@ gulp.task('serve', () => {
       notify: false,
       port: 8080,
       server: {
-        baseDir: ['.tmp', 'src'],
+        baseDir: [`${distDir}`, 'src'],
       },
     });
 
@@ -65,7 +67,7 @@ gulp.task('serve', () => {
   });
 });
 
-gulp.task('publish', () => gulp.src('.tmp/**/*')
+gulp.task('publish', () => gulp.src(`${distDir}/**/*`)
   .pipe(ghPages()));
 
 gulp.task('deploy', () => {
